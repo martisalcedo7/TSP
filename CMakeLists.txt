@@ -5,8 +5,12 @@ project(myApp
     DESCRIPTION "Simulation"
     LANGUAGES CXX)
 
+# add_library(cities STATIC src/cities.cpp)
+# target_include_directories(cities PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
-add_executable(myApp src/main.cpp)
+add_executable(myApp src/plot.cpp
+                    src/cities.cpp
+                    src/solvers.cpp)
 
 target_include_directories(myApp  
     PRIVATE
@@ -15,12 +19,10 @@ target_include_directories(myApp
     # ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib
 )
 
-# target_link_libraries(myApp
-# PRIVATE python3.6m)
-
 target_link_libraries(myApp
     PUBLIC
     pthread
+    # cities
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-audio.so
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-graphics.so
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-network.so
@@ -28,6 +30,4 @@ target_link_libraries(myApp
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-window.so
 )
 
-# target_compile_features(myApp PRIVATE cxx_std_17)
-
-target_compile_options(myApp PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(myApp PRIVATE -Wall -Wextra -Wpedantic -O3)
