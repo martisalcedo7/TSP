@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
 
     //Create other texts
     sf::Text text_info;
-    text_info.setFillColor(sf::Color::Red);
+    text_info.setFillColor(sf::Color::Blue);
     text_info.setFont(font); // font is a sf::Font
     text_info.setCharacterSize(18);
     text_info.setPosition(0, map_size.y+20);
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
         }
 
         ///// MAIN LOOP
-
+        // break;
         // solver.step();
         // std::vector<int> solution = solver.get_best_path();
         // std::vector<int> path = solver.get_path();
