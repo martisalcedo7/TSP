@@ -54,6 +54,7 @@ class SOM{
         float nabla;
         float alpha;
         void update_neighboring(void);
+        uint closest_point(uint city);
 
     public:
 

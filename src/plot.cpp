@@ -162,6 +162,8 @@ int main(int argc, char** argv) {
 
         // text_info.setString("Steps: " + std::to_string(solver.get_counter()) + "  Best path: " + vector_to_string(solution) + " Best distance: " + std::to_string(best_distance));
 
+        text_info.setString("Steps: " + std::to_string(som.get_counter()) + "  Best path: " + vector_to_string(som.get_best_path()));
+
         som.step();
         points = som.get_points();
         for(size_t i=0; i<number_of_points; i++){

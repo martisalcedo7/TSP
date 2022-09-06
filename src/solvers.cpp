@@ -141,21 +141,12 @@ void SOM::step(void){
     }
 
     uint city = random_number(number_of_cities-1);
-    // std::cout << city << "\n";
 
-    uint closest_point = 0;
-    float shortest_distance = pow(cities_location.at(city).x - points.at(0).x, 2.0) + pow(cities_location.at(city).y - points.at(0).y, 2.0);
-    for(size_t x=1; x<number_of_points; x++){
-        float distance = pow(cities_location.at(city).x - points.at(x).x, 2.0) + pow(cities_location.at(city).y - points.at(x).y, 2.0);
-        if(distance < shortest_distance){
-            closest_point = x;
-            shortest_distance = distance;
-        }
-    }
+    uint c_point = closest_point(city);
 
     for(size_t x=0; x<number_of_points; x++){
-        points.at(x).x = points.at(x).x + nabla * neighboring.at(closest_point).at(x) * (cities_location.at(city).x - points.at(x).x);
-        points.at(x).y = points.at(x).y + nabla * neighboring.at(closest_point).at(x) * (cities_location.at(city).y - points.at(x).y);
+        points.at(x).x = points.at(x).x + nabla * neighboring.at(c_point).at(x) * (cities_location.at(city).x - points.at(x).x);
+        points.at(x).y = points.at(x).y + nabla * neighboring.at(c_point).at(x) * (cities_location.at(city).y - points.at(x).y);
     }
 
     alpha += 0.0001;
@@ -181,6 +172,25 @@ void SOM::solve(void){
 }
 
 std::vector<int> SOM::get_best_path(void){
+
+    std::vector<uint> indexes(number_of_cities);
+    std::vector<uint> order(number_of_cities);
+
+    for(size_t x=0; x<number_of_cities; x++){
+        indexes.at(x) = closest_point(x);
+        order.at(x) = closest_point(x);
+    }
+
+    std::stable_sort(order.begin(), order.end());
+    best_path = std::vector<int>(number_of_cities);
+
+    for(size_t x=0; x<number_of_cities; x++){
+        for(size_t y=0; y<number_of_cities; y++){
+            if(indexes.at(x) == order.at(y)){
+                best_path.at(y) = x;
+            }
+        }
+    }
     return best_path;
 }
 
@@ -202,5 +212,18 @@ std::vector<Point> SOM::get_points(void){
 
 uint SOM::get_number_of_points(void){
     return number_of_points;
+}
+
+uint SOM::closest_point(uint city){
+    uint closest_point = 0;
+    float shortest_distance = pow(cities_location.at(city).x - points.at(0).x, 2.0) + pow(cities_location.at(city).y - points.at(0).y, 2.0);
+    for(size_t x=1; x<number_of_points; x++){
+        float distance = pow(cities_location.at(city).x - points.at(x).x, 2.0) + pow(cities_location.at(city).y - points.at(x).y, 2.0);
+        if(distance < shortest_distance){
+            closest_point = x;
+            shortest_distance = distance;
+        }
+    }
+    return closest_point;
 }
 
