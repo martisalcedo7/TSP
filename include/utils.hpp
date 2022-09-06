@@ -17,6 +17,7 @@ int random_number(int max);
 long factorial(const int n);
 
 void print_vector(const std::vector<int> &vector);
+void print_vector(const std::vector<float> &vector);
 
 std::string vector_to_string(const std::vector<int> &vector);
 

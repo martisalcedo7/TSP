@@ -39,26 +39,50 @@ void draw_lines(sf::RenderWindow &window, const std::vector<int> path, const std
     window.draw(line, 2, sf::Lines);
 }
 
-int main(void) {
+void draw_lines_point(sf::RenderWindow &window, const std::vector<int> path, const std::vector<Point> &cities, sf::Color color){
+    size_t number_of_cities = cities.size();
+    for(size_t i=0; i<(number_of_cities-1); i++){
+        sf::Vertex line[] =
+        {
+        sf::Vertex(point_to_vector2f(cities.at(path.at(i))), color),
+        sf::Vertex(point_to_vector2f(cities.at(path.at(i+1))), color)
+        };
+        window.draw(line, 2, sf::Lines);
+    }
+    sf::Vertex line[] =
+    {
+    sf::Vertex(point_to_vector2f(cities.at(path.at(number_of_cities-1))), color),
+    sf::Vertex(point_to_vector2f(cities.at(path.at(0))), color)
+    };
+    window.draw(line, 2, sf::Lines);
+}
 
-    constexpr uint num_cities = 9;
+int main(int argc, char** argv) {
+
+    if(argc < 2){
+        std::cout << "Number of cities not given\n";
+        return 0;
+    }
+
+    uint num_cities = std::stoi(argv[1]);
     sf::Vector2i map_size(780, 550);
 
     Cities cities_map(num_cities, map_size);
-    BruteForce solver(cities_map);
+    // BruteForce solver(cities_map);
+
+    SOM som(cities_map);
+
+    std::vector<Point> points = som.get_points();
+    uint number_of_points = som.get_number_of_points();
 
 
     std::vector<sf::Vector2f> cities = cities_map.get_cities();
 
-    // std::vector<sf::Vector2f> cities = {sf::Vector2f(375, 90),sf::Vector2f(273, 289),sf::Vector2f(73, 236),sf::Vector2f(123, 138),sf::Vector2f(245, 380),sf::Vector2f(386, 227),sf::Vector2f(2, 129),sf::Vector2f(210, 115),sf::Vector2f(70, 38)};
-    // std::vector<sf::Vector2f> cities = {sf::Vector2f(271, 257),sf::Vector2f(295, 335),sf::Vector2f(193, 399),sf::Vector2f(219, 307),sf::Vector2f(33, 36)};
-    // cities_map.cities = cities;
-    // cities_map.calculate_distance_matrix();
+    std::vector<int> som_solution(number_of_points, 0);
+    for(size_t x=1; x<number_of_points; x++){
+        som_solution.at(x)=x;
+    }
 
-    // for(size_t i=0; i<num_cities; i++){
-    //     std::cout << "sf::Vector2f(" << cities.at(i).x << ", " << cities.at(i).y << "),";
-    // }
-    // std::cout << "\n";
 
     // Create circles for cities
     float radius = 5.0;
@@ -66,6 +90,14 @@ int main(void) {
     for(size_t i=0; i<num_cities; i++){
         circles.at(i).setFillColor(sf::Color::Green);
         circles.at(i).setPosition(cities.at(i).x-radius, cities.at(i).y-radius);
+    }
+
+    //Create circles for points
+    float radius_points = 5.0;
+    std::vector<sf::CircleShape> circles_points(number_of_points, sf::CircleShape(radius_points));
+    for(size_t i=0; i<number_of_points; i++){
+        circles_points.at(i).setFillColor(sf::Color::Blue);
+        circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
     }
 
     //Create Texts
@@ -83,6 +115,16 @@ int main(void) {
         labels.at(i).setCharacterSize(18);
         labels.at(i).setString(std::to_string(i));
     }
+
+    // Create text for points
+    // std::vector<sf::Text> labels_points(number_of_points, sf::Text());
+    // for(size_t i=0; i<number_of_points; i++){
+    //     labels_points.at(i).setFillColor(sf::Color::White);
+    //     labels_points.at(i).setPosition(points.at(i).x, points.at(i).y);
+    //     labels_points.at(i).setFont(font);
+    //     labels_points.at(i).setCharacterSize(18);
+    //     labels_points.at(i).setString(std::to_string(i));
+    // }
 
     //Create other texts
     sf::Text text_info;
@@ -113,25 +155,40 @@ int main(void) {
 
         ///// MAIN LOOP
 
-        solver.step();
-        std::vector<int> solution = solver.get_best_path();
-        std::vector<int> path = solver.get_path();
-        float best_distance = solver.get_best_distance();
+        // solver.step();
+        // std::vector<int> solution = solver.get_best_path();
+        // std::vector<int> path = solver.get_path();
+        // float best_distance = solver.get_best_distance();
 
-        text_info.setString("Steps: " + std::to_string(solver.get_counter()) + "  Best path: " + vector_to_string(solution) + " Best distance: " + std::to_string(best_distance));
+        // text_info.setString("Steps: " + std::to_string(solver.get_counter()) + "  Best path: " + vector_to_string(solution) + " Best distance: " + std::to_string(best_distance));
+
+        som.step();
+        points = som.get_points();
+        for(size_t i=0; i<number_of_points; i++){
+            circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
+            // labels_points.at(i).setPosition(points.at(i).x, points.at(i).y);
+        }
+
 
         //Clear screen
         window.clear();
 
         // Draw stuff in the screen
-        if(!solver.is_solved()){
-            draw_lines(window, path, cities, sf::Color::White);
+        // if(!solver.is_solved()){
+        //     draw_lines(window, path, cities, sf::Color::White);
+        // }
+        draw_lines_point(window, som_solution, points, sf::Color::Blue);
+        // draw_lines(window, solution, cities, sf::Color::Red);
+        for(size_t i=0; i<number_of_points; i++){
+
+            window.draw(circles_points.at(i));
+            // window.draw(labels_points.at(i));
         }
-        draw_lines(window, solution, cities, sf::Color::Red);
         for(size_t i=0; i<num_cities; i++){
             window.draw(circles.at(i));
             window.draw(labels.at(i));
         }
+
         window.draw(text_info);
 
         // Update the window

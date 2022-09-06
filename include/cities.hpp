@@ -12,6 +12,7 @@ class Cities{
         std::vector<std::vector<float>> distance_matrix;
         std::vector<sf::Vector2f> cities;
         void calculate_distance_matrix(void);
+        sf::Vector2i map_size;
 
     public:
         //Constructor
@@ -22,6 +23,7 @@ class Cities{
         uint get_number_of_cities(void);
         //Functions
         float total_distance(const std::vector<int> &order);
+        sf::Vector2i get_map_size(void);
 };
 
 #endif

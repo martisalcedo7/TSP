@@ -38,6 +38,14 @@ void print_vector(const std::vector<int> &vector){
     std::cout << "\n";
 }
 
+void print_vector(const std::vector<float> &vector){
+    size_t size = vector.size();
+    for(size_t x=0; x<size; x++){
+        std::cout << vector.at(x) << " ";
+    }
+    std::cout << "\n";
+}
+
 std::string vector_to_string(const std::vector<int> &vector){
     size_t size = vector.size();
     std::string str;

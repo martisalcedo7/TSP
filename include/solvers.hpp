@@ -41,13 +41,19 @@ class SOM{
     private:
         Cities cities;
         uint number_of_cities;
+        uint number_of_points;
         std::vector<int> best_path;
         float best_distance;
         long counter;
         bool solved;
+        std::vector<sf::Vector2f> cities_location;
 
         //This solver
-        // std::vector<Point> points;
+        std::vector<Point> points;
+        std::vector<std::vector<float>> neighboring;
+        float nabla;
+        float alpha;
+        void update_neighboring(void);
 
     public:
 
@@ -60,6 +66,8 @@ class SOM{
         float get_best_distance(void);
         bool is_solved(void);
         long get_counter(void);
+        std::vector<Point> get_points(void);
+        uint get_number_of_points(void);
     
 };
 

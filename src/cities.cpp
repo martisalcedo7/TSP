@@ -7,7 +7,7 @@
 #include "utils.hpp"
 
 
-Cities::Cities(const uint number_of_cities, const sf::Vector2i &map_size): number_of_cities{number_of_cities}{
+Cities::Cities(const uint number_of_cities, const sf::Vector2i &map_size): number_of_cities{number_of_cities}, map_size{map_size}{
 
     std::vector<sf::Vector2f> cities_vector(number_of_cities, sf::Vector2f(0, 0));
     for(size_t i=0; i<number_of_cities; i++){
@@ -58,5 +58,9 @@ float Cities::total_distance(const std::vector<int> &path){
 
 uint Cities::get_number_of_cities(void){
     return number_of_cities;
+}
+
+sf::Vector2i Cities::get_map_size(void){
+    return map_size;
 }
 
