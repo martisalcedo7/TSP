@@ -5,7 +5,7 @@
   - Self Organizing Maps
   - ...
 - Visualization of the solving process using SFML in C++
-  - Brute force:
+  - Brute force:<br/>
 	![Example](media/example.gif)
-  - Self Organizing Maps:
+  - Self Organizing Maps:<br/>
 	![Example](media/example_som.gif)
