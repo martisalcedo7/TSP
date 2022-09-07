@@ -63,26 +63,38 @@ int main(int argc, char** argv) {
         std::cout << "Number of cities not given\n";
         return 0;
     }
-
+    // Get number of cities from the args
     uint num_cities = std::stoi(argv[1]);
+    // Define map size
     sf::Vector2i map_size(780, 550);
-
+    // Instantiate cities class
     Cities cities_map(num_cities, map_size);
-    // BruteForce solver(cities_map);
 
+
+    // Initialise solvers
+    //Brute force
+    // BruteForce bf(cities_map);
+
+    // SOM
     SOM som(cities_map);
-
     std::vector<Point> points = som.get_points();
     uint number_of_points = som.get_number_of_points();
-
-
-    std::vector<sf::Vector2f> cities = cities_map.get_cities();
-
     std::vector<int> som_solution(number_of_points, 0);
     for(size_t x=1; x<number_of_points; x++){
         som_solution.at(x)=x;
     }
+    //Create circles for points
+    float radius_points = 4.0;
+    std::vector<sf::CircleShape> circles_points(number_of_points, sf::CircleShape(radius_points));
+    for(size_t i=0; i<number_of_points; i++){
+        circles_points.at(i).setFillColor(sf::Color::White);
+        circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
+    }
 
+    //
+
+    // Get vector with cities coordinates
+    std::vector<sf::Vector2f> cities = cities_map.get_cities();
 
     // Create circles for cities
     float radius = 4.0;
@@ -90,14 +102,6 @@ int main(int argc, char** argv) {
     for(size_t i=0; i<num_cities; i++){
         circles.at(i).setFillColor(sf::Color::Green);
         circles.at(i).setPosition(cities.at(i).x-radius, cities.at(i).y-radius);
-    }
-
-    //Create circles for points
-    float radius_points = 4.0;
-    std::vector<sf::CircleShape> circles_points(number_of_points, sf::CircleShape(radius_points));
-    for(size_t i=0; i<number_of_points; i++){
-        circles_points.at(i).setFillColor(sf::Color::Blue);
-        circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
     }
 
     //Create Texts
@@ -116,7 +120,7 @@ int main(int argc, char** argv) {
         labels.at(i).setString(std::to_string(i));
     }
 
-    //Create other texts
+    //Create info text
     sf::Text text_info;
     text_info.setFillColor(sf::Color::Red);
     text_info.setFont(font); // font is a sf::Font
@@ -148,45 +152,55 @@ int main(int argc, char** argv) {
         }
 
         ///// MAIN LOOP
-        // solver.step();
-        // solution = solver.get_best_path();
-        // uint steps = solver.get_counter();
-        // best_distance = solver.get_best_distance();
-        // std::vector<int> path = solver.get_path();
-        // float best_distance = solver.get_best_distance();
 
+        // Brute force
+        // bf.step();
+        // solution = bf.get_best_path();
+        // uint steps = bf.get_counter();
+        // best_distance = bf.get_best_distance();
+        // std::vector<int> path = bf.get_path();
+        // bool solved = bf.is_solved();
+
+        // SOM
         som.step();
         solution = som.get_best_path();
         uint steps = som.get_counter();
         best_distance = som.get_best_distance();
-
-        text_info.setString("Steps: " + std::to_string(steps) + " Best distance: " + std::to_string(best_distance) + "\nBest path: " + vector_to_string(solution));
-
-
         points = som.get_points();
+        bool solved = som.is_solved();
         for(size_t i=0; i<number_of_points; i++){
             circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
         }
 
 
+        // Update text with info
+        text_info.setString("Cities: " + std::to_string(num_cities) + " Steps: " + std::to_string(steps)
+        + " Best distance: " + std::to_string(best_distance) + "\nBest path: " + vector_to_string(solution));
+
         //Clear screen
         window.clear();
 
         // Draw stuff in the screen
-        // if(!solver.is_solved()){
-        //     draw_lines(window, path, cities, sf::Color::White);
-        // }
-        draw_lines_point(window, som_solution, points, sf::Color::Blue);
-        draw_lines(window, solution, cities, sf::Color::Red);
-        // for(size_t i=0; i<number_of_points; i++){
 
-        //     window.draw(circles_points.at(i));
-        // }
+        // Solving lines
+        if(!solved){
+            // Brute force
+            //draw_lines(window, path, cities, sf::Color::White);
+            // SOM
+            draw_lines_point(window, som_solution, points, sf::Color::White);
+            for(size_t i=0; i<number_of_points; i++){
+                window.draw(circles_points.at(i));
+            }
+        }
+
+        // Draw solution lines
+        draw_lines(window, solution, cities, sf::Color::Red);
+        // Draw cities lines and circles
         for(size_t i=0; i<num_cities; i++){
             window.draw(circles.at(i));
             window.draw(labels.at(i));
         }
-
+        // Draw text with info
         window.draw(text_info);
 
         // Update the window

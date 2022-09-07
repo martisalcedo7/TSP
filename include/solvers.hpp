@@ -66,7 +66,7 @@ class SOM{
     public:
 
         SOM(Cities &cities, float nabla = 1.0, float nabla_decay = 0.0, float alpha = 500,
-         float alpha_decay = 0.001, uint number_of_iterations = 20000, uint points_multiplier = 3);
+         float alpha_decay = 0.001, uint number_of_iterations = 10000, uint points_multiplier = 3);
 
         void step(void);
         void solve(void);
