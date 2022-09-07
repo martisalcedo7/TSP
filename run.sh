@@ -1,2 +1,2 @@
 cd build
-./myApp 1000
+./myApp 250

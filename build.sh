@@ -4,4 +4,4 @@ cd build
 cp ../fonts/arial.ttf .
 cmake ..
 make
-time ./myApp 100
+time ./myApp 10

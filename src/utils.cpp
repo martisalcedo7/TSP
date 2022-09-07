@@ -47,10 +47,21 @@ void print_vector(const std::vector<float> &vector){
 }
 
 std::string vector_to_string(const std::vector<int> &vector){
-    size_t size = vector.size();
+    size_t size = vector.size() - 1;
     std::string str;
+    // uint counter = 0;
     for(size_t x=0; x<size; x++){
-        str += (std::to_string(vector.at(x)) + " ");
+        // std::string sep;
+        // if(counter<10){
+        //     sep = " ";
+        // }else{
+        //     sep = "\n";
+        //     counter = 0;
+        // }
+        str += (std::to_string(vector.at(x)) + ",");
+        // counter++;
     }
+    str += std::to_string(vector.back());
+
     return str;
 }

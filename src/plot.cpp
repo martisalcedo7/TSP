@@ -116,28 +116,22 @@ int main(int argc, char** argv) {
         labels.at(i).setString(std::to_string(i));
     }
 
-    // Create text for points
-    // std::vector<sf::Text> labels_points(number_of_points, sf::Text());
-    // for(size_t i=0; i<number_of_points; i++){
-    //     labels_points.at(i).setFillColor(sf::Color::White);
-    //     labels_points.at(i).setPosition(points.at(i).x, points.at(i).y);
-    //     labels_points.at(i).setFont(font);
-    //     labels_points.at(i).setCharacterSize(18);
-    //     labels_points.at(i).setString(std::to_string(i));
-    // }
-
     //Create other texts
     sf::Text text_info;
-    text_info.setFillColor(sf::Color::Blue);
+    text_info.setFillColor(sf::Color::Red);
     text_info.setFont(font); // font is a sf::Font
     text_info.setCharacterSize(18);
-    text_info.setPosition(0, map_size.y+20);
+    text_info.setPosition(0, map_size.y+5);
 
     // Define running period
     // constexpr std::chrono::milliseconds period = std::chrono::milliseconds(20); //ms
 
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(map_size.x+20, map_size.y+50), "SFML window");
+
+    //Results variables
+    std::vector<int> solution(num_cities);
+    float best_distance = 0;
 
     //Start main loop
     while (window.isOpen())
@@ -154,21 +148,24 @@ int main(int argc, char** argv) {
         }
 
         ///// MAIN LOOP
-        // break;
         // solver.step();
-        // std::vector<int> solution = solver.get_best_path();
+        // solution = solver.get_best_path();
+        // uint steps = solver.get_counter();
+        // best_distance = solver.get_best_distance();
         // std::vector<int> path = solver.get_path();
         // float best_distance = solver.get_best_distance();
 
-        // text_info.setString("Steps: " + std::to_string(solver.get_counter()) + "  Best path: " + vector_to_string(solution) + " Best distance: " + std::to_string(best_distance));
-
-        text_info.setString("Steps: " + std::to_string(som.get_counter()) + "  Best path: " + vector_to_string(som.get_best_path()));
-
         som.step();
+        solution = som.get_best_path();
+        uint steps = som.get_counter();
+        best_distance = som.get_best_distance();
+
+        text_info.setString("Steps: " + std::to_string(steps) + " Best distance: " + std::to_string(best_distance) + "\nBest path: " + vector_to_string(solution));
+
+
         points = som.get_points();
         for(size_t i=0; i<number_of_points; i++){
             circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
-            // labels_points.at(i).setPosition(points.at(i).x, points.at(i).y);
         }
 
 
@@ -180,15 +177,14 @@ int main(int argc, char** argv) {
         //     draw_lines(window, path, cities, sf::Color::White);
         // }
         draw_lines_point(window, som_solution, points, sf::Color::Blue);
-        // draw_lines(window, solution, cities, sf::Color::Red);
-        for(size_t i=0; i<number_of_points; i++){
+        draw_lines(window, solution, cities, sf::Color::Red);
+        // for(size_t i=0; i<number_of_points; i++){
 
-            // window.draw(circles_points.at(i));
-            // window.draw(labels_points.at(i));
-        }
+        //     window.draw(circles_points.at(i));
+        // }
         for(size_t i=0; i<num_cities; i++){
             window.draw(circles.at(i));
-            // window.draw(labels.at(i));
+            window.draw(labels.at(i));
         }
 
         window.draw(text_info);
@@ -209,6 +205,16 @@ int main(int argc, char** argv) {
     //     // std::chrono::duration<double, std::milli> elapsed2 = end2-start;
     //     // std::cout << (1000.0/elapsed2.count()) << " FPS\n";
     }
+
+    // Print the cities
+    std::cout << "Cities: [";
+    for(size_t i=0; i<num_cities; i++){
+        std::cout << "("<< cities.at(i).x << "," << cities.at(i).y << "),";
+    }
+    std::cout << "]\n";
+    // Print the solution
+    std::cout << "Best path: [" << vector_to_string(solution) << "]\n";
+    std::cout << "Best distance: " << best_distance << "\n";
 
     return 0;
 }

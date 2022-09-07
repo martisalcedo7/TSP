@@ -75,7 +75,7 @@ std::vector<int> BruteForce::get_path(void){
 }
 
 float BruteForce::get_best_distance(void){
-    return best_distance;
+    return std::sqrt(best_distance);
 }
 
 bool BruteForce::is_solved(void){
@@ -107,15 +107,21 @@ SOM::SOM(Cities &cities, float nabla, float nabla_decay, float alpha,
     }
     best_distance = cities.total_distance(best_path);
 
-    //Create points in a circle
+    //Create points in an ellipse
     points = std::vector<Point>(number_of_points);
 
-    float radius = std::min(cities.get_map_size().x, cities.get_map_size().y) / 2.0;
     float angle_increment = 2 * M_PI / number_of_points;
+    float a = cities.get_map_size().x / 2.0;
+    float b = cities.get_map_size().y / 2.0;
 
     for(size_t x=0; x<number_of_points; x++){
-        points.at(x).x = radius * std::cos(x * angle_increment) + cities.get_map_size().x / 2.0;
-        points.at(x).y = radius * std::sin(x * angle_increment) + cities.get_map_size().y / 2.0;
+        // points.at(x).x = radius * std::cos(x * angle_increment) + cities.get_map_size().x / 2.0;
+        // points.at(x).y = radius * std::sin(x * angle_increment) + cities.get_map_size().y / 2.0;
+        float r = (a*b)/(std::sqrt(a*a*std::sin(x * angle_increment)*std::sin(x * angle_increment)+b*b*std::cos(x * angle_increment)*std::cos(x * angle_increment)));
+        points.at(x).x = r * std::cos(x * angle_increment)+ a;
+        points.at(x).y = r * std::sin(x * angle_increment)+ b;
+        // points.at(x).x = random_number(cities.get_map_size().x);
+        // points.at(x).y = random_number(cities.get_map_size().y);
     }
 
     //Create neighboring matrix
@@ -163,7 +169,7 @@ void SOM::step(void){
         nabla = std::max(nabla, nabla_decay);
     }
 
-    std::cout << nabla << " " << alpha << "\n";
+    // std::cout << nabla << " " << alpha << "\n";
 
     update_neighboring();
 
@@ -183,59 +189,40 @@ void SOM::solve(void){
 
 std::vector<int> SOM::get_best_path(void){
 
-    // std::vector<int> indexes(number_of_cities);
-    // std::vector<int> order(number_of_cities);
-
-    // for(size_t x=0; x<number_of_cities; x++){
-    //     uint point = closest_point(x);
-    //     indexes.at(x) = point;
-    //     order.at(x) = point;
-    // }
-
-    // std::stable_sort(order.begin(), order.end());
     std::vector<int> path(number_of_cities, 0);
-    // best_path = std::vector<int>(number_of_cities);
+    std::vector<int> visited_cities(number_of_cities, -1);
+    uint visited_cities_index = 0;
 
-    // for(size_t x=0; x<number_of_cities; x++){
-    //     for(size_t y=0; y<number_of_cities; y++){
-    //         if(indexes.at(x) == order.at(y)){
-    //             path.at(y) = x;
-    //         }
-    //     }
-    // }
-    // for(size_t x=0; x<number_of_points; x++){
-    //     uint city = closest_city(x);
-    //     indexes.at(x) = point;
-    //     order.at(x) = point;
-    // }
-
-    // uint closest_city = 0;
-    // float shortest_distance = distance_city_point(city, x);
-    // for(size_t x=1; x<number_of_cities; x++){
-    //     float distance = distance_city_point(city, x);
-    //     if(distance < shortest_distance){
-    //         closest_city = x;
-    //         shortest_distance = distance;
-    //     }
-    // }
+    for(size_t x=0; x<number_of_points; x++){
+        float shortest_distance = distance_city_point(x, 0);
+        uint closest_city = 0;
+        for(size_t y=1; y<number_of_cities; y++){
+            float distance = distance_city_point(x, y);
+            if(distance < shortest_distance){
+                shortest_distance = distance;
+                closest_city = y;
+            }
+        }
+        if (!std::count(visited_cities.begin(), visited_cities.end(), closest_city)) {
+            visited_cities.at(visited_cities_index) = closest_city;
+            visited_cities_index++;
+        }
+    }
 
     // print_vector(path);
-
-
-    // float distance = cities.total_distance(path);
-
-    // if(distance < best_distance){
-    //     best_distance = distance;
-    best_path = path;
-    // }
-    // print_vector(best_path);
-    // print_vector(best_path);
+    if (!std::count(visited_cities.begin(), visited_cities.end(), -1)) {
+        float distance = cities.total_distance(visited_cities);
+        if(distance < best_distance){
+            best_distance = distance;
+            best_path = visited_cities;
+        }
+    }
 
     return best_path;
 }
 
 float SOM::get_best_distance(void){
-    return best_distance;
+    return std::sqrt(best_distance);
 }
 
 bool SOM::is_solved(void){
@@ -265,19 +252,6 @@ uint SOM::closest_point(uint city){
         }
     }
     return closest_point;
-}
-
-uint SOM::closest_city(uint point){
-    uint closest_city = 0;
-    float shortest_distance = pow(cities_location.at(0).x - points.at(point).x, 2.0) + pow(cities_location.at(0).y - points.at(point).y, 2.0);
-    for(size_t x=1; x<number_of_cities; x++){
-        float distance = pow(cities_location.at(x).x - points.at(point).x, 2.0) + pow(cities_location.at(x).y - points.at(point).y, 2.0);
-        if(distance < shortest_distance){
-            closest_city = x;
-            shortest_distance = distance;
-        }
-    }
-    return closest_city;
 }
 
 float SOM::distance_city_point(uint point, uint city){
