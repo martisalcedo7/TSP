@@ -51,15 +51,23 @@ class SOM{
         //This solver
         std::vector<Point> points;
         std::vector<std::vector<float>> neighboring;
-        float nabla;
-        float alpha;
         void update_neighboring(void);
         uint closest_point(uint city);
         uint closest_city(uint point);
+        float distance_city_point(uint point, uint city);
+
+        //Hyper params
+        float nabla;
+        float nabla_decay;
+        float alpha;
+        float alpha_decay;
+        uint number_of_iterations;
+        uint points_multiplier;
 
     public:
 
-        SOM(Cities &cities);
+        SOM(Cities &cities, float nabla = 1.0, float nabla_decay = 0.0, float alpha = 500,
+         float alpha_decay = 0.0007, uint number_of_iterations = 20000, uint points_multiplier = 3);
 
         void step(void);
         void solve(void);

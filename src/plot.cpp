@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 
 
     // Create circles for cities
-    float radius = 5.0;
+    float radius = 4.0;
     std::vector<sf::CircleShape> circles(num_cities, sf::CircleShape(radius));
     for(size_t i=0; i<num_cities; i++){
         circles.at(i).setFillColor(sf::Color::Green);
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
     }
 
     //Create circles for points
-    float radius_points = 5.0;
+    float radius_points = 4.0;
     std::vector<sf::CircleShape> circles_points(number_of_points, sf::CircleShape(radius_points));
     for(size_t i=0; i<number_of_points; i++){
         circles_points.at(i).setFillColor(sf::Color::Blue);
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
         labels.at(i).setFillColor(sf::Color::White);
         labels.at(i).setPosition(cities.at(i).x, cities.at(i).y);
         labels.at(i).setFont(font);
-        labels.at(i).setCharacterSize(18);
+        labels.at(i).setCharacterSize(16);
         labels.at(i).setString(std::to_string(i));
     }
 
@@ -183,12 +183,12 @@ int main(int argc, char** argv) {
         // draw_lines(window, solution, cities, sf::Color::Red);
         for(size_t i=0; i<number_of_points; i++){
 
-            window.draw(circles_points.at(i));
+            // window.draw(circles_points.at(i));
             // window.draw(labels_points.at(i));
         }
         for(size_t i=0; i<num_cities; i++){
             window.draw(circles.at(i));
-            window.draw(labels.at(i));
+            // window.draw(labels.at(i));
         }
 
         window.draw(text_info);
