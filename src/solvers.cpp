@@ -6,23 +6,50 @@
 #include "cities.hpp"
 #include "utils.hpp"
 
-// Brute Force
+// Solver parent class
 
-BruteForce::BruteForce(Cities &cities): cities {cities}{
+Solver::Solver(Cities &cities): cities {cities}{
     solved = false;
     counter = 0;
     number_of_cities = cities.get_number_of_cities();
+    best_path = std::vector<int>(number_of_cities, 0);
+    for(size_t x=0; x<number_of_cities; x++){
+        best_path.at(x)=x;
+    }
+    best_distance = cities.total_distance(best_path);
+}
 
-    path = std::vector<int>(number_of_cities, 0);
+void Solver::solve(void){
+    while(!solved){
+        step();
+        // std::cout << counter << "\n";
+    }
+}
+
+std::vector<int> Solver::get_best_path(void){
+    return best_path;
+}
+
+float Solver::get_best_distance(void){
+    return std::sqrt(best_distance);
+}
+
+bool Solver::is_solved(void){
+    return solved;
+}
+
+long Solver::get_counter(void){
+    return counter;
+}
+
+// Brute Force
+BruteForce::BruteForce(Cities &cities): Solver::Solver(cities){
+
+    path = best_path;
     short_path = std::vector<int>(number_of_cities-1, 0);
-
     for(size_t x=1; x<number_of_cities; x++){
         short_path.at(x-1)=x;
-        path.at(x)=x;
     }
-
-    best_distance = cities.total_distance(path);
-    best_path = path;
 
     long permutations = factorial(number_of_cities-1)/2.0;
     std::cout << "Possible paths for " << number_of_cities << " cities: (" << number_of_cities << "-1)! / 2 = " << permutations << "\n";
@@ -59,53 +86,20 @@ void BruteForce::step(void){
     }
 }
 
-void BruteForce::solve(void){
-    while(!solved){
-        step();
-        // std::cout << counter << "\n";
-    }
-}
-
-std::vector<int> BruteForce::get_best_path(void){
-    return best_path;
-}
-
 std::vector<int> BruteForce::get_path(void){
     return path;
-}
-
-float BruteForce::get_best_distance(void){
-    return std::sqrt(best_distance);
-}
-
-bool BruteForce::is_solved(void){
-    return solved;
-}
-
-long BruteForce::get_counter(void){
-    return counter;
 }
 
 
 // SOM solver
 
 SOM::SOM(Cities &cities, float nabla, float nabla_decay, float alpha,
-         float alpha_decay, uint number_of_iterations, uint points_multiplier): cities {cities}, 
+         float alpha_decay, uint number_of_iterations, uint points_multiplier): Solver::Solver(cities), 
          nabla {nabla}, nabla_decay {nabla_decay}, alpha {alpha}, alpha_decay {alpha_decay},
          number_of_iterations {number_of_iterations}, points_multiplier {points_multiplier}{
 
-    solved = false;
-    counter = 0;
-    number_of_cities = cities.get_number_of_cities();
     cities_location = cities.get_cities();
     number_of_points = number_of_cities * points_multiplier;
-
-    // Initialize best path and best distance
-    best_path = std::vector<int>(number_of_cities);
-    for(size_t x=0; x<number_of_cities; x++){
-        best_path.at(x)=x;
-    }
-    best_distance = cities.total_distance(best_path);
 
     //Create points in an ellipse
     points = std::vector<Point>(number_of_points);
@@ -169,7 +163,17 @@ void SOM::step(void){
         nabla = std::max(nabla, nabla_decay);
     }
 
+    // // Shaker
+    // if(counter%500==0){
+    //     for(size_t x=0; x<number_of_points; x++){
+    //         // std::cout << (random_number(100) / 50.0 - 1) << "\n";
+    //         points.at(x).x += (random_number(100) / 50.0 - 1) * best_distance * 0.01;
+    //         points.at(x).y += (random_number(100) / 50.0 - 1) * best_distance * 0.01;
+    //     }
+    // }
+
     // std::cout << nabla << " " << alpha << "\n";
+    update_best_path();
 
     update_neighboring();
 
@@ -181,13 +185,8 @@ void SOM::step(void){
 
 }
 
-void SOM::solve(void){
-    while(!solved){
-        step();
-    }
-}
 
-std::vector<int> SOM::get_best_path(void){
+void SOM::update_best_path(void){
 
     std::vector<int> path(number_of_cities, 0);
     std::vector<int> visited_cities(number_of_cities, -1);
@@ -218,19 +217,7 @@ std::vector<int> SOM::get_best_path(void){
         }
     }
 
-    return best_path;
-}
-
-float SOM::get_best_distance(void){
-    return std::sqrt(best_distance);
-}
-
-bool SOM::is_solved(void){
-    return solved;
-}
-
-long SOM::get_counter(void){
-    return counter;
+    // return best_path;
 }
 
 std::vector<Point> SOM::get_points(void){

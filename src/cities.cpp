@@ -1,17 +1,18 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "SFML/Graphics.hpp"
 #include <cassert>
 #include "cities.hpp"
 #include "utils.hpp"
 
 
-Cities::Cities(const uint number_of_cities, const sf::Vector2i &map_size): number_of_cities{number_of_cities}, map_size{map_size}{
+Cities::Cities(const uint number_of_cities, const Point &map_size): number_of_cities{number_of_cities}, map_size{map_size}{
 
-    std::vector<sf::Vector2f> cities_vector(number_of_cities, sf::Vector2f(0, 0));
+    std::vector<Point> cities_vector(number_of_cities);
     for(size_t i=0; i<number_of_cities; i++){
-        sf::Vector2f city(random_number(map_size.x), random_number(map_size.y));
+        Point city;
+        city.x = random_number(map_size.x);
+        city.y = random_number(map_size.y);
         cities_vector.at(i) = city;
     }
     cities = cities_vector;
@@ -38,7 +39,7 @@ void Cities::calculate_distance_matrix(void){
     distance_matrix = matrix;
 }
 
-std::vector<sf::Vector2f> Cities::get_cities(void){
+std::vector<Point> Cities::get_cities(void){
     return cities;
 }
 
@@ -60,7 +61,7 @@ uint Cities::get_number_of_cities(void){
     return number_of_cities;
 }
 
-sf::Vector2i Cities::get_map_size(void){
+Point Cities::get_map_size(void){
     return map_size;
 }
 

@@ -12,14 +12,6 @@
 #include "solvers.hpp"
 #include "utils.hpp"
 
-// sf::Vertex line[] =
-// {
-// sf::Vertex(sf::Vector2f(10, 10)),
-// sf::Vertex(sf::Vector2f(150, 150))
-// };
-// ​
-// window. draw(line, 2, sf::Lines);
-
 
 void draw_lines(sf::RenderWindow &window, const std::vector<int> path, const std::vector<sf::Vector2f> &cities, sf::Color color){
     size_t number_of_cities = cities.size();
@@ -60,16 +52,17 @@ void draw_lines_point(sf::RenderWindow &window, const std::vector<int> path, con
 int main(int argc, char** argv) {
 
     if(argc < 2){
-        std::cout << "Number of cities not given\n";
+        std::cout << "Number of cities not given.\n";
         return 0;
     }
     // Get number of cities from the args
     uint num_cities = std::stoi(argv[1]);
     // Define map size
-    sf::Vector2i map_size(780, 550);
+    Point map_size;
+    map_size.x = 780;
+    map_size.y = 550;
     // Instantiate cities class
     Cities cities_map(num_cities, map_size);
-
 
     // Initialise solvers
     //Brute force
@@ -94,7 +87,7 @@ int main(int argc, char** argv) {
     //
 
     // Get vector with cities coordinates
-    std::vector<sf::Vector2f> cities = cities_map.get_cities();
+    std::vector<Point> cities = cities_map.get_cities();
 
     // Create circles for cities
     float radius = 4.0;
@@ -185,7 +178,7 @@ int main(int argc, char** argv) {
         // Solving lines
         if(!solved){
             // Brute force
-            //draw_lines(window, path, cities, sf::Color::White);
+            // draw_lines_point(window, path, cities, sf::Color::White);
             // SOM
             draw_lines_point(window, som_solution, points, sf::Color::White);
             for(size_t i=0; i<number_of_points; i++){
@@ -194,7 +187,7 @@ int main(int argc, char** argv) {
         }
 
         // Draw solution lines
-        draw_lines(window, solution, cities, sf::Color::Red);
+        draw_lines_point(window, solution, cities, sf::Color::Red);
         // Draw cities lines and circles
         for(size_t i=0; i<num_cities; i++){
             window.draw(circles.at(i));
@@ -229,6 +222,7 @@ int main(int argc, char** argv) {
     // Print the solution
     std::cout << "Best path: [" << vector_to_string(solution) << "]\n";
     std::cout << "Best distance: " << best_distance << "\n";
+
 
     return 0;
 }
