@@ -19,17 +19,6 @@ long factorial(const int n)
     return f;
 }
 
-sf::Vector2f point_to_vector2f(const Point &point){
-    return sf::Vector2f(point.x, point.y);
-}
-
-Point vector2f_to_point(const sf::Vector2f &vector2f){
-    Point p;
-    p.x = vector2f.x;
-    p.y = vector2f.y;
-    return p;
-}
-
 void print_vector(const std::vector<int> &vector){
     size_t size = vector.size();
     for(size_t x=0; x<size; x++){
@@ -49,19 +38,31 @@ void print_vector(const std::vector<float> &vector){
 std::string vector_to_string(const std::vector<int> &vector){
     size_t size = vector.size() - 1;
     std::string str;
-    // uint counter = 0;
     for(size_t x=0; x<size; x++){
-        // std::string sep;
-        // if(counter<10){
-        //     sep = " ";
-        // }else{
-        //     sep = "\n";
-        //     counter = 0;
-        // }
         str += (std::to_string(vector.at(x)) + ",");
-        // counter++;
     }
     str += std::to_string(vector.back());
-
     return str;
+}
+
+sf::Vector2f point_to_vector2f(const Point &point){
+    return sf::Vector2f(point.x, point.y);
+}
+
+void draw_lines_point(sf::RenderWindow &window, const std::vector<int> path, const std::vector<Point> &cities, sf::Color color){
+    size_t number_of_cities = cities.size();
+    for(size_t i=0; i<(number_of_cities-1); i++){
+        sf::Vertex line[] =
+        {
+        sf::Vertex(point_to_vector2f(cities.at(path.at(i))), color),
+        sf::Vertex(point_to_vector2f(cities.at(path.at(i+1))), color)
+        };
+        window.draw(line, 2, sf::Lines);
+    }
+    sf::Vertex line[] =
+    {
+    sf::Vertex(point_to_vector2f(cities.at(path.at(number_of_cities-1))), color),
+    sf::Vertex(point_to_vector2f(cities.at(path.at(0))), color)
+    };
+    window.draw(line, 2, sf::Lines);
 }

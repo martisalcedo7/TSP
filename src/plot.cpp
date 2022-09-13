@@ -6,48 +6,13 @@
 #include "SFML/Graphics.hpp"
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 // Local libs
 #include "cities.hpp"
 #include "solvers.hpp"
 #include "utils.hpp"
 
-
-void draw_lines(sf::RenderWindow &window, const std::vector<int> path, const std::vector<sf::Vector2f> &cities, sf::Color color){
-    size_t number_of_cities = cities.size();
-    for(size_t i=0; i<(number_of_cities-1); i++){
-        sf::Vertex line[] =
-        {
-        sf::Vertex(cities.at(path.at(i)), color),
-        sf::Vertex(cities.at(path.at(i+1)), color)
-        };
-        window.draw(line, 2, sf::Lines);
-    }
-    sf::Vertex line[] =
-    {
-    sf::Vertex(cities.at(path.at(number_of_cities-1)), color),
-    sf::Vertex(cities.at(path.at(0)), color)
-    };
-    window.draw(line, 2, sf::Lines);
-}
-
-void draw_lines_point(sf::RenderWindow &window, const std::vector<int> path, const std::vector<Point> &cities, sf::Color color){
-    size_t number_of_cities = cities.size();
-    for(size_t i=0; i<(number_of_cities-1); i++){
-        sf::Vertex line[] =
-        {
-        sf::Vertex(point_to_vector2f(cities.at(path.at(i))), color),
-        sf::Vertex(point_to_vector2f(cities.at(path.at(i+1))), color)
-        };
-        window.draw(line, 2, sf::Lines);
-    }
-    sf::Vertex line[] =
-    {
-    sf::Vertex(point_to_vector2f(cities.at(path.at(number_of_cities-1))), color),
-    sf::Vertex(point_to_vector2f(cities.at(path.at(0))), color)
-    };
-    window.draw(line, 2, sf::Lines);
-}
 
 int main(int argc, char** argv) {
 
@@ -66,12 +31,11 @@ int main(int argc, char** argv) {
 
     // Initialise solvers
     //Brute force
-    // BruteForce bf(cities_map);
-
+    // BruteForce bf_solver(cities_map);
     // SOM
-    SOM som(cities_map);
-    std::vector<Point> points = som.get_points();
-    uint number_of_points = som.get_number_of_points();
+    SOM som_solver(cities_map);
+    std::vector<Point> points = som_solver.get_points();
+    uint number_of_points = som_solver.get_number_of_points();
     std::vector<int> som_solution(number_of_points, 0);
     for(size_t x=1; x<number_of_points; x++){
         som_solution.at(x)=x;
@@ -147,23 +111,21 @@ int main(int argc, char** argv) {
         ///// MAIN LOOP
 
         // Brute force
-        // bf.step();
-        // solution = bf.get_best_path();
-        // uint steps = bf.get_counter();
-        // best_distance = bf.get_best_distance();
-        // std::vector<int> path = bf.get_path();
-        // bool solved = bf.is_solved();
+        // bf_solver.step();
+        // solution = bf_solver.get_best_path();
+        // uint steps = bf_solver.get_counter();
+        // best_distance = bf_solver.get_best_distance();
+        // std::vector<int> path = bf_solver.get_path();
+        // bool solved = bf_solver.is_solved();
 
         // SOM
-        som.step();
-        solution = som.get_best_path();
-        uint steps = som.get_counter();
-        best_distance = som.get_best_distance();
-        points = som.get_points();
-        bool solved = som.is_solved();
-        for(size_t i=0; i<number_of_points; i++){
-            circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
-        }
+        som_solver.step();
+        solution = som_solver.get_best_path();
+        uint steps = som_solver.get_counter();
+        best_distance = som_solver.get_best_distance();
+        points = som_solver.get_points();
+        bool solved = som_solver.is_solved();
+
 
 
         // Update text with info
@@ -182,6 +144,7 @@ int main(int argc, char** argv) {
             // SOM
             draw_lines_point(window, som_solution, points, sf::Color::White);
             for(size_t i=0; i<number_of_points; i++){
+                circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
                 window.draw(circles_points.at(i));
             }
         }
