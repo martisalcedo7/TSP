@@ -15,6 +15,10 @@ class Solver{
         float best_distance;
         long counter;
         bool solved;
+
+        std::vector<int> path;
+        uint number_of_points;
+        std::vector<Point> points;
     
         Solver(Cities &cities);
         void solve(void);
@@ -22,28 +26,30 @@ class Solver{
         float get_best_distance(void);
         bool is_solved(void);
         long get_counter(void);
+
         virtual void step(void){};
+        virtual std::vector<int> get_path(void){return path;};
+        virtual std::vector<Point> get_points(void){return points;};
+        virtual uint get_number_of_points(void){return number_of_points;};    
 };
 
 
 class BruteForce: public Solver{
     private:
         //This solver
-        std::vector<int> path;
         std::vector<int> short_path;
     public:
         BruteForce(Cities &cities);
         void step(void) override;
-        //This solver
-        std::vector<int> get_path(void);
+        std::vector<int> get_path(void) override;
+        std::vector<Point> get_points(void) override;
+        uint get_number_of_points(void) override; 
 };
 
 class SOM: public Solver{
     private:
         //This solver
         std::vector<Point> cities_location;
-        uint number_of_points;
-        std::vector<Point> points;
         std::vector<std::vector<float>> neighboring;
         void update_neighboring(void);
         uint closest_point(uint city);
@@ -60,23 +66,23 @@ class SOM: public Solver{
         SOM(Cities &cities, float nabla = 1.0, float nabla_decay = 0.0, float alpha = 500,
          float alpha_decay = 0.001, uint number_of_iterations = 10000, uint points_multiplier = 3);
         void step(void) override;
-        //This solver
-        std::vector<Point> get_points(void);
-        uint get_number_of_points(void);    
+        std::vector<int> get_path(void) override;
+        std::vector<Point> get_points(void) override;
+        uint get_number_of_points(void) override;   
 };
 
-class Genetic: public Solver{
+// class Genetic: public Solver{
 
-    private:
+//     private:
 
-        // Cities cities;
+//         // Cities cities;
 
-    public:
+//     public:
 
-        Genetic(Cities &cities, uint individuals);
+//         Genetic(Cities &cities, uint individuals);
 
-        void step(void) override;
+//         void step(void) override;
 
-};
+// };
 
 #endif

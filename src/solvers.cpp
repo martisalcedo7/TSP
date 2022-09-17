@@ -90,6 +90,14 @@ std::vector<int> BruteForce::get_path(void){
     return path;
 }
 
+std::vector<Point> BruteForce::get_points(void){
+    return cities.get_cities();
+}
+
+uint BruteForce::get_number_of_points(void){
+    return number_of_cities;
+}
+
 
 // SOM solver
 
@@ -101,21 +109,21 @@ SOM::SOM(Cities &cities, float nabla, float nabla_decay, float alpha,
     cities_location = cities.get_cities();
     number_of_points = number_of_cities * points_multiplier;
 
+    path = std::vector<int>(number_of_points, 0);
+
     //Create points in an ellipse
     points = std::vector<Point>(number_of_points);
 
     float angle_increment = 2 * M_PI / number_of_points;
-    float a = cities.get_map_size().x / 2.0;
-    float b = cities.get_map_size().y / 2.0;
+    float a = (cities.get_max_coordinates().x - cities.get_min_coordinates().x) / 2.0;
+    float b = (cities.get_max_coordinates().y - cities.get_min_coordinates().y) / 2.0;
 
     for(size_t x=0; x<number_of_points; x++){
-        // points.at(x).x = radius * std::cos(x * angle_increment) + cities.get_map_size().x / 2.0;
-        // points.at(x).y = radius * std::sin(x * angle_increment) + cities.get_map_size().y / 2.0;
         float r = (a*b)/(std::sqrt(a*a*std::sin(x * angle_increment)*std::sin(x * angle_increment)+b*b*std::cos(x * angle_increment)*std::cos(x * angle_increment)));
-        points.at(x).x = r * std::cos(x * angle_increment)+ a;
-        points.at(x).y = r * std::sin(x * angle_increment)+ b;
-        // points.at(x).x = random_number(cities.get_map_size().x);
-        // points.at(x).y = random_number(cities.get_map_size().y);
+        points.at(x).x = r * std::cos(x * angle_increment) + a + cities.get_min_coordinates().x;
+        points.at(x).y = r * std::sin(x * angle_increment) + b + cities.get_min_coordinates().y;
+
+        path.at(x) = x;
     }
 
     //Create neighboring matrix
@@ -163,18 +171,7 @@ void SOM::step(void){
         nabla = std::max(nabla, nabla_decay);
     }
 
-    // // Shaker
-    // if(counter%500==0){
-    //     for(size_t x=0; x<number_of_points; x++){
-    //         // std::cout << (random_number(100) / 50.0 - 1) << "\n";
-    //         points.at(x).x += (random_number(100) / 50.0 - 1) * best_distance * 0.01;
-    //         points.at(x).y += (random_number(100) / 50.0 - 1) * best_distance * 0.01;
-    //     }
-    // }
-
-    // std::cout << nabla << " " << alpha << "\n";
     update_best_path();
-
     update_neighboring();
 
     counter++;
@@ -188,7 +185,6 @@ void SOM::step(void){
 
 void SOM::update_best_path(void){
 
-    std::vector<int> path(number_of_cities, 0);
     std::vector<int> visited_cities(number_of_cities, -1);
     uint visited_cities_index = 0;
 
@@ -208,7 +204,6 @@ void SOM::update_best_path(void){
         }
     }
 
-    // print_vector(path);
     if (!std::count(visited_cities.begin(), visited_cities.end(), -1)) {
         float distance = cities.total_distance(visited_cities);
         if(distance < best_distance){
@@ -216,8 +211,10 @@ void SOM::update_best_path(void){
             best_path = visited_cities;
         }
     }
+}
 
-    // return best_path;
+std::vector<int> SOM::get_path(void){
+    return path;
 }
 
 std::vector<Point> SOM::get_points(void){

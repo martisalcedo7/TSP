@@ -24,41 +24,46 @@ int main(int argc, char** argv) {
     uint num_cities = std::stoi(argv[1]);
     // Define map size
     Point map_size;
-    map_size.x = 780;
-    map_size.y = 550;
+    map_size.x = 1366;
+    map_size.y = 708;
     // Instantiate cities class
-    Cities cities_map(num_cities, map_size);
+    // std::vector<Point> cities_coordinates = generate_random_cities(num_cities, map_size);
+    std::vector<Point> cities_coordinates = cities_from_file("/home/ms/repositories/simulation/data/cities_copy.csv");
+
+    Cities cities_map(cities_coordinates);
 
     // Initialise solvers
-    //Brute force
-    // BruteForce bf_solver(cities_map);
-    // SOM
-    SOM som_solver(cities_map);
-    std::vector<Point> points = som_solver.get_points();
-    uint number_of_points = som_solver.get_number_of_points();
-    std::vector<int> som_solution(number_of_points, 0);
-    for(size_t x=1; x<number_of_points; x++){
-        som_solution.at(x)=x;
+    std::unique_ptr<Solver> solver; 
+    int solving_method = 0;
+    switch(solving_method){
+        case 0:
+            solver = std::make_unique<BruteForce>(cities_map);
+            break;
+        case 1:
+            solver = std::make_unique<SOM>(cities_map);
+            break;
+        default:
+            return 0;
     }
+
+    // Convert points coordinates into map coordinates
+    std::vector<Point> map_coord_points =  transform_points_to_map_coordinates(solver->get_points(), map_size, cities_map.get_min_coordinates(), cities_map.get_max_coordinates());
     //Create circles for points
     float radius_points = 4.0;
-    std::vector<sf::CircleShape> circles_points(number_of_points, sf::CircleShape(radius_points));
-    for(size_t i=0; i<number_of_points; i++){
+    std::vector<sf::CircleShape> circles_points(solver->get_number_of_points(), sf::CircleShape(radius_points));
+    for(size_t i=0; i<solver->get_number_of_points(); i++){
         circles_points.at(i).setFillColor(sf::Color::White);
-        circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
+        circles_points.at(i).setPosition(map_coord_points.at(i).x-radius_points, map_coord_points.at(i).y-radius_points);
     }
 
-    //
-
-    // Get vector with cities coordinates
-    std::vector<Point> cities = cities_map.get_cities();
-
+    // Convert cities coordinates into map coordinates
+    std::vector<Point> map_coord_cities =  transform_points_to_map_coordinates(cities_map.get_cities(), map_size, cities_map.get_min_coordinates(), cities_map.get_max_coordinates());
     // Create circles for cities
     float radius = 4.0;
-    std::vector<sf::CircleShape> circles(num_cities, sf::CircleShape(radius));
-    for(size_t i=0; i<num_cities; i++){
+    std::vector<sf::CircleShape> circles(cities_map.get_number_of_cities(), sf::CircleShape(radius));
+    for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
         circles.at(i).setFillColor(sf::Color::Green);
-        circles.at(i).setPosition(cities.at(i).x-radius, cities.at(i).y-radius);
+        circles.at(i).setPosition(map_coord_cities.at(i).x-radius, map_coord_cities.at(i).y-radius);
     }
 
     //Create Texts
@@ -68,10 +73,10 @@ int main(int argc, char** argv) {
     font.loadFromFile("arial.ttf");
 
     // Create text for cities
-    std::vector<sf::Text> labels(num_cities, sf::Text());
-    for(size_t i=0; i<num_cities; i++){
+    std::vector<sf::Text> labels(cities_map.get_number_of_cities(), sf::Text());
+    for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
         labels.at(i).setFillColor(sf::Color::White);
-        labels.at(i).setPosition(cities.at(i).x, cities.at(i).y);
+        labels.at(i).setPosition(map_coord_cities.at(i).x, map_coord_cities.at(i).y);
         labels.at(i).setFont(font);
         labels.at(i).setCharacterSize(16);
         labels.at(i).setString(std::to_string(i));
@@ -82,23 +87,14 @@ int main(int argc, char** argv) {
     text_info.setFillColor(sf::Color::Red);
     text_info.setFont(font); // font is a sf::Font
     text_info.setCharacterSize(18);
-    text_info.setPosition(0, map_size.y+5);
-
-    // Define running period
-    // constexpr std::chrono::milliseconds period = std::chrono::milliseconds(20); //ms
+    text_info.setPosition(0, map_size.y+15);
 
     // Create the main window
-    sf::RenderWindow window(sf::VideoMode(map_size.x+20, map_size.y+50), "SFML window");
-
-    //Results variables
-    std::vector<int> solution(num_cities);
-    float best_distance = 0;
+    sf::RenderWindow window(sf::VideoMode(map_size.x, map_size.y+60), "SFML window");
 
     //Start main loop
     while (window.isOpen())
     {   
-        //Capture time
-        // auto start = std::chrono::system_clock::now();
 
         //Process events
         sf::Event event;
@@ -108,51 +104,31 @@ int main(int argc, char** argv) {
                 window.close();
         }
 
-        ///// MAIN LOOP
+        // Run a solver step
+        solver->step();
 
-        // Brute force
-        // bf_solver.step();
-        // solution = bf_solver.get_best_path();
-        // uint steps = bf_solver.get_counter();
-        // best_distance = bf_solver.get_best_distance();
-        // std::vector<int> path = bf_solver.get_path();
-        // bool solved = bf_solver.is_solved();
-
-        // SOM
-        som_solver.step();
-        solution = som_solver.get_best_path();
-        uint steps = som_solver.get_counter();
-        best_distance = som_solver.get_best_distance();
-        points = som_solver.get_points();
-        bool solved = som_solver.is_solved();
-
-
+        // Convert new points coordinates into map coordinates
+        map_coord_points =  transform_points_to_map_coordinates(solver->get_points(), map_size, cities_map.get_min_coordinates(), cities_map.get_max_coordinates());
 
         // Update text with info
-        text_info.setString("Cities: " + std::to_string(num_cities) + " Steps: " + std::to_string(steps)
-        + " Best distance: " + std::to_string(best_distance) + "\nBest path: " + vector_to_string(solution));
+        text_info.setString("Cities: " + std::to_string(cities_map.get_number_of_cities()) + " Steps: " + std::to_string(solver->get_counter())
+        + " Best distance: " + std::to_string(solver->get_best_distance()) + "\nBest path: " + vector_to_string(solver->get_best_path()));
 
         //Clear screen
         window.clear();
 
-        // Draw stuff in the screen
-
-        // Solving lines
-        if(!solved){
-            // Brute force
-            // draw_lines_point(window, path, cities, sf::Color::White);
-            // SOM
-            draw_lines_point(window, som_solution, points, sf::Color::White);
-            for(size_t i=0; i<number_of_points; i++){
-                circles_points.at(i).setPosition(points.at(i).x-radius_points, points.at(i).y-radius_points);
+        // Draw solving procedure lines and points
+        if(!solver->is_solved()){
+            draw_lines_point(window, solver->get_path(), map_coord_points, sf::Color::White);
+            for(size_t i=0; i<solver->get_number_of_points(); i++){
+                circles_points.at(i).setPosition(map_coord_points.at(i).x-radius_points, map_coord_points.at(i).y-radius_points);
                 window.draw(circles_points.at(i));
             }
         }
-
         // Draw solution lines
-        draw_lines_point(window, solution, cities, sf::Color::Red);
-        // Draw cities lines and circles
-        for(size_t i=0; i<num_cities; i++){
+        draw_lines_point(window, solver->get_best_path(), map_coord_cities, sf::Color::Red);
+        // Draw cities labels and circles
+        for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
             window.draw(circles.at(i));
             window.draw(labels.at(i));
         }
@@ -161,30 +137,16 @@ int main(int argc, char** argv) {
 
         // Update the window
         window.display();
-
-        ///// END OF MAIN LOOP
-
-        // //Adjust time
-        // auto end = std::chrono::system_clock::now();
-        // std::chrono::duration<double, std::milli> elapsed = end-start;
-        // if(elapsed < std::chrono::milliseconds(period)){
-        //     std::this_thread::sleep_for(std::chrono::milliseconds(period) - elapsed);
-        // }
-
-    //     // auto end2 = std::chrono::high_resolution_clock::now();
-    //     // std::chrono::duration<double, std::milli> elapsed2 = end2-start;
-    //     // std::cout << (1000.0/elapsed2.count()) << " FPS\n";
     }
 
     // Print the cities
-    std::cout << "Cities: [";
-    for(size_t i=0; i<num_cities; i++){
-        std::cout << "("<< cities.at(i).x << "," << cities.at(i).y << "),";
+    std::cout << "Cities:\n";
+    for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
+        std::cout << cities_map.get_cities().at(i).x << "," << cities_map.get_cities().at(i).y << "\n";
     }
-    std::cout << "]\n";
     // Print the solution
-    std::cout << "Best path: [" << vector_to_string(solution) << "]\n";
-    std::cout << "Best distance: " << best_distance << "\n";
+    std::cout << "Best path: [" << vector_to_string(solver->get_best_path()) << "]\n";
+    std::cout << "Best distance: " << solver->get_best_distance() << "\n";
 
 
     return 0;

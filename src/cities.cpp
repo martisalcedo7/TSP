@@ -6,16 +6,22 @@
 #include "utils.hpp"
 
 
-Cities::Cities(const uint number_of_cities, const Point &map_size): number_of_cities{number_of_cities}, map_size{map_size}{
+Cities::Cities(const std::vector<Point> &cities_vector){
 
-    std::vector<Point> cities_vector(number_of_cities);
-    for(size_t i=0; i<number_of_cities; i++){
-        Point city;
-        city.x = random_number(map_size.x);
-        city.y = random_number(map_size.y);
-        cities_vector.at(i) = city;
-    }
     cities = cities_vector;
+    number_of_cities = cities.size();
+
+    min_coordinates.x = cities.at(0).x;
+    max_coordinates.x = cities.at(0).x;
+    min_coordinates.y = cities.at(0).y;
+    max_coordinates.y = cities.at(0).y;
+
+    for(size_t i=1; i<number_of_cities; i++){
+        if(cities.at(i).x < min_coordinates.x){min_coordinates.x = cities.at(i).x;};
+        if(cities.at(i).x > max_coordinates.x){max_coordinates.x = cities.at(i).x;};
+        if(cities.at(i).y < min_coordinates.y){min_coordinates.y = cities.at(i).y;};
+        if(cities.at(i).y > max_coordinates.y){max_coordinates.y = cities.at(i).y;};
+    }
 
     calculate_distance_matrix();
 }
@@ -61,7 +67,17 @@ uint Cities::get_number_of_cities(void){
     return number_of_cities;
 }
 
-Point Cities::get_map_size(void){
-    return map_size;
+Point Cities::get_min_coordinates(void){
+    return min_coordinates;
 }
+
+Point Cities::get_max_coordinates(void){
+    return max_coordinates;
+}
+
+// void Cities::set_cities_from_vector(std::vector<Point> cities_vector){
+//     number_of_cities = cities_vector.size();
+//     cities = cities_vector;
+//     calculate_distance_matrix();
+// }
 
