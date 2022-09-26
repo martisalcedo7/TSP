@@ -1,2 +1,2 @@
 cd build
-./myApp -m som -r 25
+./TSP -m som -r 80

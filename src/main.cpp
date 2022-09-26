@@ -15,6 +15,7 @@
 #include "cities.hpp"
 #include "solvers.hpp"
 #include "utils.hpp"
+#include "font_data.hpp"
 
 
 int main(int argc, char** argv) {
@@ -112,7 +113,10 @@ int main(int argc, char** argv) {
 
     // Select the font
     sf::Font font;
-    font.loadFromFile("arial.ttf");
+    // font.loadFromFile("arial.ttf");
+    // sf::Font font;
+    font.loadFromMemory(&arial_ttf, arial_ttf_len);
+
     // Create text for cities
     std::vector<sf::Text> labels(cities_map.get_number_of_cities(), sf::Text());
     for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
