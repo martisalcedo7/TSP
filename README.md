@@ -15,7 +15,7 @@ The [travelling salesman problem (TSP)](https://en.wikipedia.org/wiki/Travelling
 	![Example](media/example_som.gif)
 	
 ## Usage
-Build the binary running the build.sh script.
+Build the binary running the **build.sh** script.<br/>
 
 ```console
 Usage: TSP [-m solving method] [-r number_of_cities || -f csv_path]
