@@ -20,7 +20,7 @@
 
 int main(int argc, char** argv) {
 
-    std::string help_message = "Usage: myApp [-m solving method] [-r number_of_cities"
+    std::string help_message = "Usage: TSP [-m solving method] [-r number_of_cities"
     " || -f csv_path]\n -m : Method to solve the problem.\n      bf -> brute force\n     "
     " som -> Self Organizing maps\n -r : Random generated cities. Number of cities to generate.\n"
     " -f : Load cities from file. Path to the csv file.\n";
