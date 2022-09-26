@@ -15,3 +15,11 @@ The [travelling salesman problem (TSP)](https://en.wikipedia.org/wiki/Travelling
 	![Example](media/example_som.gif)
 	
 ## Usage
+```console
+Usage: TSP [-m solving method] [-r number_of_cities || -f csv_path]
+ -m : Method to solve the problem.
+      bf -> brute force
+      som -> Self Organizing maps
+ -r : Random generated cities. Number of cities to generate.
+ -f : Load cities from file. Path to the csv file.
+ ```
