@@ -3,10 +3,13 @@
 #include <thread>
 #include <math.h>
 #include <random>
-#include "SFML/Graphics.hpp"
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <string>
+
+// External libs
+#include "SFML/Graphics.hpp"
 
 // Local libs
 #include "cities.hpp"
@@ -16,25 +19,64 @@
 
 int main(int argc, char** argv) {
 
-    if(argc < 2){
-        std::cout << "Number of cities not given.\n";
+    std::string help_message = "Usage: myApp [-m solving method] [-r number_of_cities"
+    " || -f csv_path]\n -m : Method to solve the problem.\n      bf -> brute force\n     "
+    " som -> Self Organizing maps\n -r : Random generated cities. Number of cities to generate.\n"
+    " -f : Load cities from file. Path to the csv file.\n";
+
+    // Check that the number of given args is correct
+    if(argc < 4){
+        std::cout << "Too few arguments.\n";
+        std::cout << help_message;
         return 0;
     }
-    // Get number of cities from the args
-    uint num_cities = std::stoi(argv[1]);
+
+    // Parse given args
+    std::string method_flag = argv[1];
+    std::string method = argv[2];
+    std::string cities_flag = argv[3];
+    std::string cities = argv[4];
+
+    // Select solving method based on args
+    if(method_flag != "-m" || (method != "bf" && method != "som")){
+        std::cout << "Incorrect method.\n";
+        std::cout << help_message;
+        return 0;
+    }
+    uint solving_method = 0;
+    if(method == "bf"){
+        solving_method = 0;
+    }else if(method == "som"){
+        solving_method = 1;
+    }
+
+    //Empty vector of cities coordinates
+    std::vector<Point> cities_coordinates;
+
     // Define map size
     Point map_size;
     map_size.x = 1366;
     map_size.y = 708;
-    // Instantiate cities class
-    // std::vector<Point> cities_coordinates = generate_random_cities(num_cities, map_size);
-    std::vector<Point> cities_coordinates = cities_from_file("/home/ms/repositories/simulation/data/cities_copy.csv");
 
+    // Create cities vector based on args
+    if(cities_flag == "-r"){
+        uint num_cities = std::stoi(argv[4]);
+        cities_coordinates = generate_random_cities(num_cities, map_size);
+    }else if(cities_flag == "-f"){
+        std::string file_path = argv[4];
+        cities_coordinates = cities_from_file(file_path);
+    }else{
+        std::cout << "Incorrect cities definition.\n";
+        std::cout << help_message;
+        return 0;
+    }
+
+    
+    // Instantiate cities class
     Cities cities_map(cities_coordinates);
 
-    // Initialise solvers
+    // Initialise solvers depending on the selected method
     std::unique_ptr<Solver> solver; 
-    int solving_method = 0;
     switch(solving_method){
         case 0:
             solver = std::make_unique<BruteForce>(cities_map);
@@ -71,7 +113,6 @@ int main(int argc, char** argv) {
     // Select the font
     sf::Font font;
     font.loadFromFile("arial.ttf");
-
     // Create text for cities
     std::vector<sf::Text> labels(cities_map.get_number_of_cities(), sf::Text());
     for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
@@ -140,7 +181,7 @@ int main(int argc, char** argv) {
     }
 
     // Print the cities
-    std::cout << "Cities:\n";
+    std::cout << "Cities(" << cities_map.get_number_of_cities() <<"):\n";
     for(size_t i=0; i<cities_map.get_number_of_cities(); i++){
         std::cout << cities_map.get_cities().at(i).x << "," << cities_map.get_cities().at(i).y << "\n";
     }

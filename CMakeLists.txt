@@ -23,7 +23,6 @@ target_include_directories(myApp
 
 target_link_libraries(myApp
     PUBLIC
-    pthread
     # cities
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-audio.so
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-graphics.so
@@ -31,5 +30,9 @@ target_link_libraries(myApp
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-system.so
     ${CMAKE_SOURCE_DIR}/SFML-2.5.1/lib/libsfml-window.so
 )
+
+# set_property(TARGET myApp PROPERTY CXX_STANDARD 17)
+# set(CMAKE_CXX_COMPILER_VERSION "8.4.0")
+
 
 target_compile_options(myApp PRIVATE -Wall -Wextra -Wpedantic -O3)

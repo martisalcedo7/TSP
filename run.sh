@@ -1,2 +1,2 @@
 cd build
-./myApp 30
+./myApp -m som -r 25
